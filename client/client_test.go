@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 
 	"github.com/jvikstedt/alarmii/client"
@@ -18,4 +19,8 @@ func TestListJobs(t *testing.T) {
 	err := client.ListJobs()
 	assert.Nil(t, err)
 	assert.Equal(t, `[{"id":1,"schedule":"@every 15s"}]`, b.String())
+
+	jobRepositoryMock.Returns.Error = errors.New("Something")
+	err = client.ListJobs()
+	assert.Error(t, err, "Something")
 }
