@@ -21,3 +21,13 @@ func (c Client) ListJobs() error {
 	c.Logger.Write(asJSON)
 	return nil
 }
+
+func (c Client) CreateJob(job domain.Job) error {
+	job, err := c.JobRepository.Create(job)
+	if err != nil {
+		return err
+	}
+	asJSON, _ := json.Marshal(job)
+	c.Logger.Write(asJSON)
+	return nil
+}
