@@ -2,6 +2,7 @@ package client_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -38,6 +39,12 @@ func TestCreateJob(t *testing.T) {
 	editorMock.Returns.Error = errors.New("EditorError")
 	err := client.CreateJob()
 	assert.EqualError(t, err, "EditorError")
+
+	// Prettyfied json
+	job := domain.Job{}
+	asPrettyJSON, _ := json.MarshalIndent(job, "", " ")
+	client.CreateJob()
+	assert.Equal(t, asPrettyJSON, editorMock.Receives.InitialValue)
 
 	// Editor invalid json
 	editorMock.Returns.Error = nil
