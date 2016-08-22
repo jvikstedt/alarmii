@@ -25,25 +25,36 @@ func TestListJobs(t *testing.T) {
 	// Error
 	jobRepositoryMock.Returns.Error = errors.New("Something")
 	err = client.ListJobs()
-	assert.Error(t, err, "Something")
+	assert.EqualError(t, err, "Something")
 }
 
 func TestCreateJob(t *testing.T) {
 	var b bytes.Buffer
 	jobRepositoryMock := mock.JobRepositoryMock{}
-	client := client.Client{Logger: &b, JobRepository: &jobRepositoryMock}
+	editorMock := mock.EditorMock{}
+	client := client.Client{Logger: &b, JobRepository: &jobRepositoryMock, Editor: &editorMock}
 
-	testJob := domain.Job{Schedule: "@every 10s"}
+	// Editor Error
+	editorMock.Returns.Error = errors.New("EditorError")
+	err := client.CreateJob()
+	assert.EqualError(t, err, "EditorError")
+
+	// Editor invalid json
+	editorMock.Returns.Error = nil
+	editorMock.Returns.EndValue = []byte("blablabla")
+	err = client.CreateJob()
+	assert.Contains(t, err.Error(), "invalid character")
 
 	// Success
+	editorMock.Returns.EndValue = []byte(`{"id":1,"schedule":"@every 15s"}`)
 	jobRepositoryMock.Returns.Job = domain.Job{ID: 1, Schedule: "@every 15s"}
-	err := client.CreateJob(testJob)
-	assert.Nil(t, err)
-	assert.Equal(t, testJob, jobRepositoryMock.Receives.Job)
+	err = client.CreateJob()
+	assert.Equal(t, jobRepositoryMock.Receives.Job.ID, 1)
+	assert.Equal(t, jobRepositoryMock.Receives.Job.Schedule, "@every 15s")
 	assert.Equal(t, `{"id":1,"schedule":"@every 15s"}`, b.String())
 
 	// Error
-	jobRepositoryMock.Returns.Error = errors.New("Something")
-	err = client.CreateJob(testJob)
-	assert.Error(t, err, "Something")
+	jobRepositoryMock.Returns.Error = errors.New("CreateError")
+	err = client.CreateJob()
+	assert.EqualError(t, err, "CreateError")
 }
