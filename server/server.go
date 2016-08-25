@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/jvikstedt/alarmii/domain"
-	"github.com/jvikstedt/alarmii/server/repository"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/tylerb/graceful"
@@ -15,10 +14,10 @@ import (
 
 type Server struct {
 	Port          int
-	JobRepository *repository.JobRepository
+	JobRepository domain.JobRepository
 }
 
-func NewServer(port int, jobRepository *repository.JobRepository) Server {
+func NewServer(port int, jobRepository domain.JobRepository) Server {
 	return Server{Port: port, JobRepository: jobRepository}
 }
 
