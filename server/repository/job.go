@@ -24,7 +24,7 @@ func (j *JobRepository) GetOne(id int) (domain.Job, error) {
 	err := j.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(jobsBucket)
 		if b == nil {
-			return nil
+			return errors.New("Not found")
 		}
 		bytes := b.Get(util.Itob(id))
 		if len(bytes) == 0 {
