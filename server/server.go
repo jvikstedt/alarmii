@@ -46,7 +46,7 @@ func (s Server) FindOneJob(c echo.Context) error {
 	id, _ := strconv.Atoi(sid)
 	job, err := s.JobRepository.GetOne(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusNotFound, nil)
 	}
 	return c.JSON(http.StatusOK, job)
 }
